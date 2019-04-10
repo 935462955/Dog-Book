@@ -1,5 +1,15 @@
 {% extends "bootstrap/base.html" %}
 
+{% block head %}
+{{ super() }}
+<link rel = "shortcut icon" href="{{ url_for('static', filename='favicon.ico')}}" type = "image/x-icon"/>
+<link rel = "icon" href="{{ url_for('static', filename='favicon.ico')}}" type = "image/x-icon"/>
+{% endblock %}
+{% block scripts %}
+{{super()}}
+{{ moment.include_moment() }} <!-- 引入Moment.js-->
+{{ moment.locale('zh-cn') }} <!-- 时间本地化 -->
+{% endblock %}
 {% block title %} Flasky {% endblock %}
 
 {% block navbar %}
