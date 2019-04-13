@@ -6,14 +6,20 @@ from flask_wtf import FlaskForm
 import wtforms,os,pymysql
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://Cogi:123@129.204.25.212/cogi'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = '我是密钥'
+migrate = Migrate(app,db)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+
+@app.shell_context_processor
+def make_shell_context():
+        return dict(db = db, User = User, Role = Role)
 
 class Role(db.Model):
     __tablename__ = 'roles'
