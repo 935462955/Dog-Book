@@ -7,15 +7,25 @@ import wtforms,os,pymysql
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_mail import Mail,Message
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://Cogi:123@129.204.25.212/cogi'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+app.config['MAIL_DEBUG'] = True
+app.config['MAIL_SERVER'] = 'smtp.163.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USERNAME'] = 'q935462955@163.com'
+app.config['MAIL_PASSWORD'] = 'q885427637' #'uknlhbmbttmmbeca'
 app.config['SECRET_KEY'] = '我是密钥'
+db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+mail = Mail(app)
 
 @app.shell_context_processor
 def make_shell_context():
@@ -43,6 +53,17 @@ class User(db.Model):
 class NameForm(FlaskForm):
     name = wtforms.StringField('what is your name?', validators = [DataRequired()])
     submit = wtforms.SubmitField('Submit')
+
+@app.route('/email_send_charactor/')
+def email_send_charactor():
+    message = Message(subject = 'hello flask-mail',sender = 'q935462955@163.com',recipients = ['935462955@qq.com'],body = 'flask-mail测试代码')
+    try:
+        with app.app_context():
+            mail.send(message)
+        return '发送成功，请查收'
+    except Exception as e:
+        print(e)
+        return '发送失败'
 
 @app.route('/',methods = ['GET','POST'])
 def index():
@@ -73,6 +94,10 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'),500
+
+@app.route('/map')
+def showmap():
+    return render_template('main.html')
 
 if __name__ == "__main__":
     app.run(debug = True)   

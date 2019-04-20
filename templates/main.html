@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>  
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link href="{{url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+       
+        <style type="text/css">
+            #map-container{
+             height:1024px ;
+             width:1024px ;   
+            }
+        </style>
+        <style type="text/css">
+        #panel-1 {
+            position: absolute;
+            left: 2%;
+            bottom: 10%;
+        }
+
+        #heatLevel {
+            position: absolute;
+            right: 200px;
+            top: 300px;
+            z-index: 999;
+        }
+
+        #heatLevel .table tbody tr td {
+            padding: 0;
+            width: 10px;
+            height: 5px;
+            background-color: red;
+        }
+        #heatLevel .table th {
+            border: 0;
+            color: #fff;
+        }
+    </style>
+    </head>
+    <body>
+        <div id="map-container" ></div>
+        <nav class="navbar navbar-inverse">
+        <h1>
+                <a href="/" title="室内地图-室内三维地图" target="_blank">易景室内三维地图引擎</a> （热力图应用示例）
+        </h1>
+                    
+            <div class="tips-right">
+                <span class="tip1"></span>
+                <span class="tip2"></span>
+            </div>
+            <div class="tips-msg">
+                <div class="msg msg1">
+                    <div class="erweima"></div>
+                    <p>手机扫一扫进入体验</p>
+                </div>
+                <div class="msg msg2">
+                    <h4>热力图应用示例</h4>
+                    <p>1. 热力图可实时展示地区人口密度等信息</p>
+
+                    <div style="display: none">热力图应用示例,易景室内三维地图引擎提供地图浏览、缩放、旋转、图层显隐等基础功能，支持自定义室内地图显示风格及样式，可自动绘制楼层热力图、散点图等专题地图，快速进行空间大数据分析展示。支持跨楼层精准的点到点之间的最短、最优路径计算，支持对路径结果进行导航和动画,并提供丰富的地图主题资源供二次开发调用。</div>
+                </div>
+            </div>
+    
+    </nav>
+    <div class="viewmode-floor btn-floor-vertical" data-toggle="buttons">
+        <button id="btn2D" class="btn btn-default">2D</button>
+        <button id="btn3D" class="btn btn-default">3D</button>
+    </div>
+    <div id="panel-1" class="btn-floor-vertical">
+        <button id="hpshow" class="btn btn-default">应用数据热力图</button>
+        <button id="hpshow1" class="btn btn-default">应用随机热力图</button>
+        <button id="hpHide" class="btn btn-default">移除热力图</button>
+    </div>
+    </body>
+     <script src="{{url_for('static',filename='js/jquery-2.1.4.min.js')}}"></script>
+     <script src="{{url_for('static',filename='js/jquery.qrcode.min.js')}}"></script>
+     <script src="{{url_for('static',filename='js/tips_controls.js')}}"></script>
+     <script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+     <script src="{{ url_for('static', filename='esmap.min.js')}}"> </script>
+        <script type="text/javascript">
+        var  heatmapInstance = null,heatmapPoints = [];
+        $(function () {
+        var map =new esmap.ESMap({
+        container: document.getElementById('map-container'), 
+        mapDataSrc: "{{url_for('static',filename='data')}}" , //地图数据位置
+        mapThemeSrc: "{{url_for('static',filename='data/theme')}}" , //主题数据位置
+        viewModeAnimateMode: true,
+        token:"123456"
+     });//打开地图数据
+       map.openMapById(1000);
+       map.showCompass = true;
+	   map.showScaler = false;
+        // 配置热力图密度级别
+        levels = [0.1, 0.3, 0.7, 0.8, 1.6];
+         //配置热力图渐变色值
+        gradient = { 0.45: "rgb(201,135,255)", 0.55: "rgb(189,97,255)", 0.65: "rgb(155,49,255)", 0.95: "yellow", 1.0: "rgb(157,53,255)" }
+        var addHeatMap1 = function (map, fID) {
+                // 创建热力图对象
+                if (!heatmapInstance)
+                    heatmapInstance = esmap.ESHeatMap.create(map, {
+                        radius: 5, //热点半径
+                        opacity: .9, //热力图透明度
+                        max: 200, //热力点value的最大值
+                        //gradient : gradient
+                    });
+                heatmapInstance.clearPoints();
+                heatmapInstance.randomPoints(50);
+
+                // heatmapInstance.disposeHeatMap(fID)
+                //热力图应用到哪一楼层
+                var floorLayer = map.getFloor(fID);
+                floorLayer.applyHeatMap(heatmapInstance);
+            }
+        //2D展示
+            $('#btn2D').on('click', function () {
+                map.viewMode = esmap.ESViewMode.MODE_2D; //2维模式
+            });
+
+        //3D展示
+            $('#btn3D').on('click', function () {
+                map.viewMode = esmap.ESViewMode.MODE_3D;; //3维模式          
+            });
+             $('#hpshow1').on('click', function () {
+                addHeatMap1(map, map.focusFloorNum);
+            });
+            $('#hpHide').on('click', function () {
+                var floorLayer = map.getFloor(map.focusFloorNum);
+                floorLayer.removeHeatMap(heatmapInstance);
+            });
+        });
+        </script>
+        <script src="{{ url_for('static', filename='js/levelShow.js')}}"> </script>
+</html>
